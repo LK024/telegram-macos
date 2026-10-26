@@ -381,14 +381,16 @@ private func makeChatListFilterItems(engine: TelegramEngine, accountManager: Acc
                     let totalBadge = 0
                     
                     for filter in filters {
+                        let data: ChatListFilterData
                         switch filter {
                         case .allChats:
-                            result.append((filter, 0, 0, false))
-                        case let .filter(_, _, _, data):
-                            let (count, hasUnmutedUnread) = chatListFilterUnreadCount(data: data, totalStates: totalStates, peerTagAndCount: peerTagAndCount, includeMuted: badgeIncludeMuted)
-                            let totalCount = badgeIncludeMuted ? count : chatListFilterUnreadCount(data: data, totalStates: totalStates, peerTagAndCount: peerTagAndCount, includeMuted: true).count
-                            result.append((filter, count, totalCount, hasUnmutedUnread))
+                            data = ChatListFilterData(isShared: false, hasSharedLinks: false, categories: .all, excludeMuted: false, excludeRead: false, excludeArchived: true, includePeers: ChatListFilterIncludePeers(), excludePeers: [], color: nil)
+                        case let .filter(_, _, _, filterData):
+                            data = filterData
                         }
+                        let (count, hasUnmutedUnread) = chatListFilterUnreadCount(data: data, totalStates: totalStates, peerTagAndCount: peerTagAndCount, includeMuted: badgeIncludeMuted)
+                        let totalCount = badgeIncludeMuted ? count : chatListFilterUnreadCount(data: data, totalStates: totalStates, peerTagAndCount: peerTagAndCount, includeMuted: true).count
+                        result.append((filter, count, totalCount, hasUnmutedUnread))
                     }
                     
                     return (totalBadge, result)
